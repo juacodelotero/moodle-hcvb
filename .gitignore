@@ -1,0 +1,4 @@
+﻿.env
+.scannerwork/
+moodle_data/
+*.log
