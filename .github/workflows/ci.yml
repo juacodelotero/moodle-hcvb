@@ -18,10 +18,24 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      - name: Crear .env para CI
+        run: |
+          echo "MYSQL_ROOT_PASSWORD=${{ secrets.MYSQL_ROOT_PASSWORD }}" >> .env
+          echo "MYSQL_DATABASE=moodle" >> .env
+          echo "MYSQL_USER=${{ secrets.MYSQL_USER }}" >> .env
+          echo "MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD }}" >> .env
+          echo "MOODLE_ADMIN_USER=admin" >> .env
+          echo "MOODLE_ADMIN_PASSWORD=Admin1234!" >> .env
+          echo "MOODLE_ADMIN_EMAIL=admin@hcvb.cl" >> .env
+          echo "MOODLE_SITE_NAME=Plataforma HCVB" >> .env
+
       - name: Start Moodle stack
         run: docker compose up -d
+
       - name: Wait for Moodle
-        run: sleep 60
+        run: sleep 90
+
       - name: OWASP ZAP Baseline Scan
         uses: zaproxy/action-baseline@v0.14.0
         with:
