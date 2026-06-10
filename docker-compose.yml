@@ -1,0 +1,45 @@
+﻿services:
+
+  mariadb:
+    image: mariadb:10.11
+    container_name: moodle_db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass123
+      MYSQL_DATABASE: moodle
+      MYSQL_USER: moodle
+      MYSQL_PASSWORD: moodlepass123
+    volumes:
+      - mariadb_data:/var/lib/mysql
+    networks:
+      - moodle_net
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 15
+
+  moodle:
+    build: .
+    container_name: moodle_app
+    restart: unless-stopped
+    entrypoint: ["apache2-foreground"]
+    ports:
+      - "8080:80"
+    volumes:
+      - moodle_html:/var/www/html
+      - moodle_data:/var/moodledata
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    networks:
+      - moodle_net
+
+volumes:
+  mariadb_data:
+  moodle_html:
+  moodle_data:
+
+networks:
+  moodle_net:
+    driver: bridge
