@@ -25,16 +25,20 @@ jobs:
           echo "MYSQL_DATABASE=moodle" >> .env
           echo "MYSQL_USER=${{ secrets.MYSQL_USER }}" >> .env
           echo "MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD }}" >> .env
-          echo "MOODLE_ADMIN_USER=admin" >> .env
-          echo "MOODLE_ADMIN_PASSWORD=Admin1234!" >> .env
-          echo "MOODLE_ADMIN_EMAIL=admin@hcvb.cl" >> .env
-          echo "MOODLE_SITE_NAME=Plataforma HCVB" >> .env
 
-      - name: Start Moodle stack
+      - name: Start stack
         run: docker compose up -d
 
-      - name: Wait for Moodle
-        run: sleep 90
+      - name: Esperar MariaDB
+        run: |
+          for i in $(seq 1 30); do
+            docker exec moodle_db mysqladmin ping -h localhost --silent && break
+            echo "Esperando MariaDB... intento $i"
+            sleep 5
+          done
+
+      - name: Esperar Apache
+        run: sleep 30
 
       - name: OWASP ZAP Baseline Scan
         uses: zaproxy/action-baseline@v0.14.0

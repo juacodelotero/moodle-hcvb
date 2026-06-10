@@ -13,12 +13,6 @@
       - mariadb_data:/var/lib/mysql
     networks:
       - moodle_net
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      interval: 10s
-      timeout: 5s
-      retries: 15
-      start_period: 30s
 
   moodle:
     build: .
@@ -31,8 +25,7 @@
       - moodle_html:/var/www/html
       - moodle_data:/var/moodledata
     depends_on:
-      mariadb:
-        condition: service_healthy
+      - mariadb
     networks:
       - moodle_net
 
